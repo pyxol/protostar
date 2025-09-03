@@ -6,19 +6,21 @@
 	 */
 	trait HasBodyTrait {
 		/**
-		 * The body of the request, decoded if applicable. Null if no body is present
-		 * @var string
+		 * The body of the request, decoded if applicable.
+		 * Null if no body is present.
+		 * @var mixed
 		 */
 		protected mixed $body = null;
 		
 		/**
-		 * Determine the request body
+		 * Determine the body of the request.
+		 * If a body is provided, it will be set directly.
 		 * @param mixed $body The body to set. If false, the body will be determined from the request
 		 * @return void
 		 */
 		protected function determineBody(mixed $body=false): void {
 			if(false !== $body) {
-				$this->body = $body;
+				$this->setBody($body);
 				
 				return;
 			}
@@ -45,5 +47,14 @@
 		 */
 		public function getBody(): array|string|null {
 			return $this->body;
+		}
+		
+		/**
+		 * Set the request body
+		 * @param mixed $body
+		 * @return void
+		 */
+		public function setBody(mixed $body=null): void {
+			$this->body = $body;
 		}
 	}

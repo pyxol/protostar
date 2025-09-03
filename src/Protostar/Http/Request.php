@@ -14,8 +14,6 @@
 		use HasParamsTrait;
 		use HasBodyTrait;
 		
-		protected string|null $body;
-		
 		/**
 		 * Constructor
 		 * @param string|null $method The HTTP method (GET, POST). Defaults to the method determined from the server environment, or 'GET' if not available.
