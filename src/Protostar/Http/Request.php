@@ -1,18 +1,18 @@
 <?php
 	namespace Protostar\Http;
 	
-	use Protostar\Http\Traits\HasHeaders;
-	use Protostar\Http\Traits\HasMethods;
-	use Protostar\Http\Traits\HasParams;
-	use Protostar\Http\Traits\HasBody;
-	use Protostar\Http\Traits\HasUri;
+	use Protostar\Http\Traits\HasHeadersTrait;
+	use Protostar\Http\Traits\HasMethodsTrait;
+	use Protostar\Http\Traits\HasParamsTrait;
+	use Protostar\Http\Traits\HasBodyTrait;
+	use Protostar\Http\Traits\HasUriTrait;
 	
 	class Request {
-		use HasMethods;
-		use HasUri;
-		use HasHeaders;
-		use HasParams;
-		use HasBody;
+		use HasMethodsTrait;
+		use HasUriTrait;
+		use HasHeadersTrait;
+		use HasParamsTrait;
+		use HasBodyTrait;
 		
 		protected string $uri;
 		protected string|null $body;
