@@ -14,7 +14,6 @@
 		use HasParamsTrait;
 		use HasBodyTrait;
 		
-		protected string $uri;
 		protected string|null $body;
 		
 		/**

@@ -9,7 +9,7 @@
 		 * The URI of the request
 		 * @var string
 		 */
-		protected mixed $uri = null;
+		protected string $uri;
 		
 		/**
 		 * Determine the request URI
