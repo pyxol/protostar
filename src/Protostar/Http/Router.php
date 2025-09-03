@@ -231,10 +231,10 @@
 			
 			if(!class_exists($controllerClass)) {
 				// if the specified controller class does not exist, assume it's in a commonly used namespace
-				if(class_exists("App\\Http\\Controllers\\". $controllerClass)) {
-					$controllerClass = "App\\Http\\Controllers\\". $controllerClass;
-				} elseif(class_exists("Protostar\\Http\\Controllers\\". $controllerClass)) {
-					$controllerClass = "Protostar\\Http\\Controllers\\". $controllerClass;
+				if(class_exists("\\App\\Http\\Controllers\\". $controllerClass)) {
+					$controllerClass = "\\App\\Http\\Controllers\\". $controllerClass;
+				} elseif(class_exists("\\Protostar\\Http\\Controllers\\". $controllerClass)) {
+					$controllerClass = "\\Protostar\\Http\\Controllers\\". $controllerClass;
 				} else {
 					throw new RuntimeException("Controller class not found: ". $controllerClass);
 				}
