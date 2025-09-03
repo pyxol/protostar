@@ -1,6 +1,9 @@
 <?php
 	namespace Protostar\Http;
 	
+	use Protostar\Http\Request;
+	use Protostar\Http\Response;
+	
 	class Controller {
 		/**
 		 * The request object for the controller.
@@ -16,11 +19,10 @@
 		
 		/**
 		 * Constructor for the controller.
-		 * Initializes the request object.
-		 * @param \Protostar\Http\Request|null $request The request object to initialize. If null, a new Request object will be created.
+		 * @param \Protostar\Http\Request|null $request The request object to initialize. If null, the application's request object will be used.
 		 */
-		public function __construct(Request $request = null) {
-			$this->request = $request ?: new Request();
+		public function __construct(Request|null $request = null) {
+			$this->request = $request ?: \app('request');
 		}
 		
 		/**

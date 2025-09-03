@@ -167,7 +167,7 @@
 				
 				return $result;
 			} catch(PDOException $e) {
-				if(config('database.show_errors', false)) {
+				if(\config('database.show_errors', false)) {
 					die("<pre>". print_r([
 						'error' => $this->connection?->errorInfo() ?? [],
 						'query' => $query,

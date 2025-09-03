@@ -5,7 +5,6 @@
 	use BadMethodCallException;
 	use RuntimeException;
 	
-	use Protostar\App;
 	use Protostar\Http\Request;
 	use Protostar\Http\Response;
 	use Protostar\Http\Exception\RouteNotFoundException;
@@ -16,12 +15,6 @@
 		 * @var array
 		 */
 		protected static array $routes = [];
-		
-		/**
-		 * The application instance
-		 * @var \Protostar\App|null
-		 */
-		protected static App|null $app = null;
 		
 		/**
 		 * Constructor
@@ -243,18 +236,15 @@
 			return [$controllerClass, $method];
 		}
 		
-		
 		/**
-		 * Get the application instance
-		 * @return \Protostar\App|null
+		 * Get the application URL for a given path and optional parameters.
+		 * @param string $path The path to append to the base URL.
+		 * @param array $params Optional query parameters to append to the URL.
+		 * @return string
 		 */
-		public static function getApp(): ?App {
-			return self::$app;
-		}
-		
 		public function url(string $path, array $params = []): string {
 			// Build the URL based on the path and parameters
-			$url = rtrim(config('app.base_url', '/'), '/') . '/' . ltrim($path, '/');
+			$url = rtrim(\config('app.base_url', '/'), '/') . '/' . ltrim($path, '/');
 			
 			if(!empty($params)) {
 				$url .= '?' . http_build_query($params);

@@ -20,7 +20,7 @@
 		 * @return string
 		 */
 		public static function getDefaultConnectionName(): string {
-			return config('cache.default', 'redis');
+			return \config('cache.default', 'redis');
 		}
 		
 		/**
@@ -48,7 +48,7 @@
 		 * @return string
 		 */
 		public static function getHandlerDriver(string $connection_name): string {
-			return config('cache.connections.'. $connection_name .'.driver', self::DEFAULT_DRIVER);
+			return \config('cache.connections.'. $connection_name .'.driver', self::DEFAULT_DRIVER);
 		}
 		
 		/**
@@ -57,7 +57,7 @@
 		 * @return array
 		 */
 		public static function getHandlerConfig(string $connection_name): array {
-			return config('cache.connections.'. $connection_name, []);
+			return \config('cache.connections.'. $connection_name, []);
 		}
 		
 		/**
