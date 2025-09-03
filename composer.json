@@ -5,7 +5,7 @@
 	"license": "AGPL-3.0-or-later",
 	"autoload": {
 		"psr-4": {
-			"Protostar\\": "src/"
+			"Protostar\\": "src/Protostar/"
 		}
 	},
 	"require": {
