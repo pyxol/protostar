@@ -137,11 +137,12 @@
 				return array_map([$this, 'esc_sql'], $value);
 			}
 			
-			$escaped_value = $this->getConnection()?->quote($value) ?? false;
-			
-			if(false === $escaped_value) {
+			// @TODO PDO::quote includes surrounding quotes which we do not want here
+			//$escaped_value = $this->getConnection()?->quote($value) ?? false;
+			//
+			//if(false === $escaped_value) {
 				$escaped_value = addslashes($value);
-			}
+			//}
 			
 			return $escaped_value;
 		}
