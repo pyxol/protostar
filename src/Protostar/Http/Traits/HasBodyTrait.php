@@ -1,7 +1,10 @@
 <?php
 	namespace Protostar\Http\Traits;
 	
-	trait HasBody {
+	/**
+	 * Handles the body of an HTTP request or response.
+	 */
+	trait HasBodyTrait {
 		/**
 		 * The body of the request, decoded if applicable. Null if no body is present
 		 * @var string
@@ -43,6 +46,4 @@
 		public function getBody(): array|string|null {
 			return $this->body;
 		}
-		
-		
 	}

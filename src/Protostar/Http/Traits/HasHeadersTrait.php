@@ -1,7 +1,10 @@
 <?php
 	namespace Protostar\Http\Traits;
 	
-	trait HasHeaders {
+	/**
+	 * Handles the headers of an HTTP request or response.
+	 */
+	trait HasHeadersTrait {
 		/**
 		 * The HTTP method of the request
 		 * @var string

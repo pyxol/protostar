@@ -1,7 +1,10 @@
 <?php
 	namespace Protostar\Http\Traits;
 	
-	trait HasUri {
+	/**
+	 * Handles the URI of an HTTP request.
+	 */
+	trait HasUriTrait {
 		/**
 		 * The URI of the request
 		 * @var string

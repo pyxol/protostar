@@ -30,7 +30,7 @@
 		protected int $dbPort = 3306;
 		protected string $dbCharset = 'utf8mb4';
 		
-		protected ?PDO $connection = null;
+		protected mixed $connection = null;
 		
 		/**
 		 * Constructor for the DatabaseHandler class
@@ -64,7 +64,7 @@
 		}
 		
 		/**
-		 * Generate the Data Source Name (DSN) for the PDO connection
+		 * Generate the Data Source Name (DSN) for the database connection
 		 * @return string
 		 */
 		protected function generateDSN(): string {
@@ -72,8 +72,7 @@
 		}
 		
 		/**
-		 * Connect to the MariaDB database using PDO.
-		 * If already connected, this method does nothing.
+		 * Connect to database if not already connected.
 		 * @return \Protostar\Database\DatabaseHandler Returns the current instance for method chaining.
 		 * @throws \Protostar\Database\Exception\ConnectionFailedException If the connection fails.
 		 * @throws \Protostar\Database\Exception\ConnectionFailedException If an unexpected error occurs during connection.
@@ -110,9 +109,9 @@
 		
 		/**
 		 * Get the current connection instance
-		 * @return \PDO|null Returns the PDO connection instance or null if not connected
+		 * @return mixed Returns the raw database connection instance or null if not connected
 		 */
-		public function getConnection(): ?PDO {
+		public function getConnection(): mixed {
 			$this->connect();
 			
 			return $this->connection;

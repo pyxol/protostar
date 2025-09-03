@@ -28,10 +28,6 @@
 		 * @return string|null
 		 */
 		public static function getDefaultBotToken(): string|null {
-			if(defined('TELEGRAM_BOT_TOKEN') && TELEGRAM_BOT_TOKEN) {
-				return TELEGRAM_BOT_TOKEN;
-			}
-			
 			if(false !== ($env_var = getenv('TELEGRAM_BOT_TOKEN'))) {
 				if(is_array($env_var)) {
 					return $env_var[0];
@@ -48,10 +44,6 @@
 		 * @return string|int|null
 		 */
 		public static function getDefaultChatId(): string|int|null {
-			if(defined('TELEGRAM_CHAT_ID') && TELEGRAM_CHAT_ID) {
-				return TELEGRAM_CHAT_ID;
-			}
-			
 			if(false !== ($env_var = getenv('TELEGRAM_CHAT_ID'))) {
 				if(is_array($env_var)) {
 					return $env_var[0];

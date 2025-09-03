@@ -1,6 +1,9 @@
 <?php
 	namespace Protostar\Http;
 	
+	/**
+	 * @TODO Implement HasBodyTrait and HasHeadersTrait
+	 */
 	class Response {
 		protected int $statusCode = 200;
 		protected array $headers = [];

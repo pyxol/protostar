@@ -20,11 +20,7 @@
 		 * @param \Protostar\Http\Request|null $request The request object to initialize. If null, a new Request object will be created.
 		 */
 		public function __construct(Request $request = null) {
-			if(null === $request) {
-				$request = new Request();
-			}
-			
-			$this->setRequest($request);
+			$this->request = $request ?: new Request();
 		}
 		
 		/**

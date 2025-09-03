@@ -1,7 +1,10 @@
 <?php
 	namespace Protostar\Http\Traits;
 	
-	trait HasMethods {
+	/**
+	 * Handles the HTTP methods of an HTTP request.
+	 */
+	trait HasMethodsTrait {
 		/**
 		 * The HTTP method of the request
 		 * @var string

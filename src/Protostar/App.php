@@ -256,7 +256,7 @@
 				return $default;
 			}
 			
-			if($fresh || !isset(self::$cfgs[$key])) {
+			if($fresh || !isset(self::$cfgs[ $key ])) {
 				// If the configuration is not cached or fresh is true, load it from the config file
 				$config = require('/app/config/'. $key .'.php');
 				
@@ -274,7 +274,7 @@
 				// If there are nested parts, traverse the configuration array
 				foreach($parts as $part) {
 					if(is_array($value) && array_key_exists($part, $value)) {
-						$value = $value[$part];
+						$value = $value[ $part ];
 					} else {
 						// If the part does not exist, return the default value
 						return $default;

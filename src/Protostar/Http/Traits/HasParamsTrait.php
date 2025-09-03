@@ -1,7 +1,10 @@
 <?php
 	namespace Protostar\Http\Traits;
 	
-	trait HasParams {
+	/**
+	 * Handles the query parameters of an HTTP request.
+	 */
+	trait HasParamsTrait {
 		/**
 		 * The query parameters of the request
 		 * @var array
