@@ -1,0 +1,154 @@
+<?php
+	namespace Protostar\Http;
+	
+	use Protostar\Http\Response;
+	
+	class RedirectResponse extends Response {
+		protected int $statusCode = 302;
+		protected array $headers = [];
+		protected string|null $body = null;
+		
+		protected string $url = '';
+		
+		/**
+		 * Constructor for the Response class.
+		 * @param int|null $statusCode The HTTP status code for the response, default is 200.
+		 * @param array|null $headers An associative array of headers to set for the response, default is an empty array.
+		 * @param string|null $body The body content of the response, default is null.
+		 */
+		public function __construct(
+			int|null $statusCode=null,
+			array|null $headers=null,
+			string|null $body=null
+		) {
+			// Set the status code if provided
+			if(null !== $statusCode) {
+				$this->setStatusCode($statusCode);
+			}
+			
+			// Set the headers if provided
+			if(null !== $headers) {
+				foreach($headers as $name => $value) {
+					$this->setHeader($name, $value);
+				}
+			}
+			
+			// Set the body if provided
+			if(null !== $body) {
+				$this->setBody($body);
+			}
+		}
+		
+		/**
+		 * Set the URL to redirect to
+		 * @param string $url The URL to redirect to
+		 * @return \Protostar\Http\RedirectResponse
+		 */
+		public function setUrl(string $url): RedirectResponse {
+			$this->url = trim($url);
+			
+			if('' !== $this->url) {
+				$this->setHeader('Location', $url);
+			}
+			
+			return $this;;
+		}
+		
+		/**
+		 * Get the URL to redirect to
+		 * @return string
+		 */
+		public function getUrl(): string {
+			return $this->url;
+		}
+		
+		/**
+		 * Check if a URL has been set
+		 * @return bool
+		 */
+		public function hasUrl(): bool {
+			return '' !== $this->url;
+		}
+		
+		/**
+		 * Get the HTTP status code for the response
+		 * @return int The HTTP status code
+		 */
+		public function getStatusCode(): int {
+			return $this->statusCode;
+		}
+		
+		/**
+		 * Set the HTTP status code for the response
+		 * @param int $code The HTTP status code
+		 */
+		public function setStatusCode(int $code): Response {
+			$this->statusCode = $code;
+			
+			return $this;
+		}
+		
+		/**
+		 * Get the headers for the response
+		 * @return array An associative array of headers
+		 */
+		public function getHeaders(): array {
+			return $this->headers;
+		}
+		
+		/**
+		 * Set a header for the response
+		 * @param string $name The name of the header
+		 * @param string $value The value of the header
+		 * @return \Protostar\Http\Response
+		 */
+		public function setHeader(string $name, string $value): Response {
+			$this->headers[ $name ] = $value;
+			
+			return $this;
+		}
+		
+		/**
+		 * Get the body of the response
+		 * @return string|null The body content
+		 */
+		public function getBody(): string|null {
+			return $this->body;
+		}
+		
+		/**
+		 * Set the body of the response
+		 * @param string|null $body The body content
+		 * @return \Protostar\Http\Response
+		 */
+		public function setBody(string|null $body): Response {
+			$this->body = $body;
+			
+			return $this;
+		}
+		
+		/**
+		 * Send the response to the client
+		 * @return void
+		 */
+		public function send(): void {
+			if(!headers_sent()) {
+				http_response_code($this->getStatusCode());
+				
+				// Set the headers
+				header('Content-Type: application/json');
+				
+				foreach($this->getHeaders() as $name => $value) {
+					if('' === ($name = trim($name))) {
+						continue; // Skip empty header names
+					}
+					
+					header($name .": ". trim($value));
+				}
+			}
+			
+			if(null !== $this->body) {
+				print $this->getBody();
+			}
+		}
+	}
