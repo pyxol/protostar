@@ -1,0 +1,19 @@
+{
+	"name": "pyxol/protostar",
+	"description": "A strongly-typed container engine for PHP projects.",
+	"type": "library",
+	"license": "AGPL-3.0-or-later",
+	"autoload": {
+		"psr-4": {
+			"Protostar\\": "src/"
+		}
+	},
+	"require": {
+		"php": ">=8.2"
+	},
+	"config": {
+		"allow-plugins": {
+			"php-http/discovery": false
+		}
+	}
+}

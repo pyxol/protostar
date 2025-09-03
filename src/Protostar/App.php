@@ -287,5 +287,4 @@
 			// If no nested parts, return the value directly
 			return $value ?? $default;
 		}
-		
 	}

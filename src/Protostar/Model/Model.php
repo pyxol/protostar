@@ -5,132 +5,125 @@
 	use ReflectionClass;
 	use InvalidArgumentException;
 	
+	use Protostar\Model\ArrayAccessTrait;
+	
+	/**
+	 * Base model class for Protostar framework.
+	 * Provides basic functionality for database interaction and property access.
+	 */
 	class Model implements ArrayAccess {
+		use ArrayAccessTrait;
+		
+		/**
+		 * The table name for the model.
+		 * If not set, it will be derived from the class name.
+		 * @var string
+		 */
 		protected static string $table;
+		
+		/**
+		 * The primary key for the model.
+		 * Default is 'id', but can be overridden in subclasses.
+		 * @var string
+		 */
 		protected static string $primaryKey = 'id';
 		
-		protected mixed $identifier;
-		protected array|null $_data = null;
+		/**
+		 * The identifier for the model instance.
+		 * Can be a string or an integer, depending on the primary key type.
+		 * @var string|int
+		 */
+		protected mixed $_identifier;
+		
+		/**
+		 * Indicates whether the model instance has unsaved changes.
+		 * @var bool
+		 */
 		protected bool $_dirty = false;
 		
-		public function __construct(string|int $id) {
+		/**
+		 * Constructor for the model.
+		 * Accepts an identifier (string or integer) to fetch the record from the database.
+		 * @param string|int $identifier The identifier for the model instance.
+		 * @throws InvalidArgumentException If the ID is not of the expected type.
+		 */
+		public function __construct(string|int $identifier) {
 			if($this->_expectsNumericPrimaryKey()) {
-				if(!is_numeric($id)) {
+				if(!is_numeric($identifier)) {
 					throw new InvalidArgumentException("ID must be numeric");
 				}
 				
-				$this->identifier = (int)$id;
+				$this->_identifier = (int)$identifier;
 			} else {
-				if(!is_string($id)) {
+				if(!is_string($identifier)) {
 					throw new InvalidArgumentException("ID must be a string");
 				}
 				
-				$this->identifier = $id;
+				$this->_identifier = $identifier;
 			}
 			
 			$this->_fetchRecord();
 		}
 		
-		
+		/**
+		 * Checks if the model expects a numeric primary key.
+		 * This is used to determine how the identifier should be treated.
+		 * @return bool
+		 * @throws InvalidArgumentException If the primary key is not set correctly.
+		 * @internal
+		 */
 		protected function _expectsNumericPrimaryKey(): bool {
 			return static::$primaryKey === 'id' || in_array(static::$primaryKey, ['id', 'ID', 'Id'], true);
 		}
 		
+		/**
+		 * Returns the table name for the model.
+		 * If not set, it will be derived from the class name.
+		 * @return string The table name.
+		 */
 		protected function _tableName(): string {
-			if(!isset(static::$table)) {
-				static::$table = strtolower((new ReflectionClass($this))->getShortName());
-			}
-			
-			return static::$table;
+			return static::$table ??= strtolower((new ReflectionClass($this))->getShortName());
 		}
 		
-		protected function _fetchRecord(bool $force=false): void {
+		/**
+		 * Fetches the record from the database based on the identifier.
+		 * If the record is already fetched, it will not fetch it again unless forced.
+		 * @return void
+		 */
+		protected function _fetchRecord(): void {
 			// get the record from the database
-			if(null !== $this->_data && !$force) {
-				return;
-			}
-			
-			$this->_data = db()->get_row("
+			$row = db()->get_row("
 				SELECT
 					*
 				FROM `". $this->_tableName() ."`
 				WHERE
-					`". db()->escape(static::$primaryKey) ."` = '". db()->escape($this->identifier) ."'
+					`". db()->escape(static::$primaryKey) ."` = '". db()->escape($this->_identifier) ."'
 				LIMIT 1
 			");
-		}
-		
-		
-		public function __get(string $name) {
-			// convert the property name to CamelCase if it exists
-			$camelCaseName = str_replace('_', '', ucwords($name, '_'));
 			
-			// if 'get$CamelCaseAttribute' method exists, call it
-			$attribute_method = 'get' . $camelCaseName .'Attribute';
-			
-			if(method_exists($this, $attribute_method)) {
-				return $this->$attribute_method();
-			}
-			
-			if(array_key_exists($name, $this->_data)) {
-				return $this->_data[ $name ];
-			} elseif(array_key_exists($camelCaseName, $this->_data)) {
-				return $this->_data[ $camelCaseName ];
-			}
-			
-			throw new InvalidArgumentException("Property '$name' does not exist on " . static::class);
-		}
-		
-		public function __set(string $name, mixed $value): void {
-			// convert the property name to CamelCase if it exists
-			$camelCaseName = str_replace('_', '', ucwords($name, '_'));
-			
-			// if 'set$CamelCaseAttribute' method exists, call it
-			$attribute_method = 'set' . $camelCaseName .'Attribute';
-			
-			if(method_exists($this, $attribute_method)) {
-				$this->$attribute_method($value);
-				return;
-			}
-			
-			if(array_key_exists($name, $this->_data)) {
-				$this->_data[ $name ] = $value;
-				
-				$this->_dirty = true;   // @TODO method called later to save to database
-				
-				return;
-			}
-			
-			throw new InvalidArgumentException("Property '$name' does not exist on " . static::class);
-		}
-		
-		public function offsetExists(mixed $offset): bool {
-			return isset($this->_data[$offset]);
-		}
-		
-		public function offsetGet(mixed $offset): mixed {
-			if(isset($this->_data[$offset])) {
-				return $this->_data[$offset];
-			}
-			
-			throw new InvalidArgumentException("Offset '$offset' does not exist on " . static::class);
-		}
-		
-		public function offsetSet(mixed $offset, mixed $value): void {
-			if($offset === null) {
-				throw new InvalidArgumentException("Offset cannot be null");
-			}
-			
-			$this->_data[$offset] = $value;
-			$this->_dirty = true;   // @TODO method called later to save to database
-		}
-		
-		public function offsetUnset(mixed $offset): void {
-			if(isset($this->_data[$offset])) {
-				unset($this->_data[$offset]);
-				$this->_dirty = true;   // @TODO method called later to save to database
+			if(is_array($row)) {
+				$this->_data = $row;
 			} else {
-				throw new InvalidArgumentException("Offset '$offset' does not exist on " . static::class);
+				$this->_data = [];
 			}
+		}
+		
+		/**
+		 * Magic method to get a property
+		 * @param string $name
+		 * @return mixed
+		 */
+		public function __get(string $name): mixed {
+			return $this[ $name ] ?? null;
+		}
+		
+		/**
+		 * Magic method to set a property
+		 * @param string $name
+		 * @param mixed $value
+		 * @return void
+		 */
+		public function __set(string $name, mixed $value): void {
+			$this[ $name ] = $value;
 		}
 	}
