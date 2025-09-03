@@ -48,21 +48,14 @@
 			// For other methods, parse the query string from the URI
 			
 			// If the request URI contains a query string, parse it
-			if(false !== strpos($this->uri, '?')) {
+			if(false !== strpos($this->getRealUri(), '?')) {
 				// Split the URI into path and query string
-				$parts = explode('?', $this->uri, 2);
-				
-				
-				// @TODO remove altering $this->uri here
-				$this->uri = $parts[0];
+				$parts = explode('?', $this->getRealUri(), 2);
 				
 				if(isset($parts[1])) {
 					// Parse the query string into an associative array
 					parse_str($parts[1], $this->params);
 				}
-				
-				// Remove the query string from the URI
-				$this->uri = rtrim($this->uri, '?&');
 			}
 		}
 		

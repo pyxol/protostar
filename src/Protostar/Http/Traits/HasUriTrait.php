@@ -12,6 +12,12 @@
 		protected string $uri;
 		
 		/**
+		 * The real URI of the request, which may include query strings.
+		 * @var string
+		 */
+		protected string $uri_real;
+		
+		/**
 		 * Determine the request URI
 		 * @return void
 		 */
@@ -25,6 +31,12 @@
 			} else {
 				$this->uri = '/';
 			}
+			
+			// Store the real URI
+			$this->uri_real = $this->uri;
+			
+			// Normalize the URI by removing query strings
+			$this->uri = preg_replace('/\?.*/', '', $this->uri);
 		}
 		
 		/**
@@ -36,7 +48,16 @@
 		}
 		
 		/**
+		 * Get the real request URI, including any optional query strings
+		 * @return string
+		 */
+		public function getRealUri(): string {
+			return $this->uri_real;
+		}
+		
+		/**
 		 * Determine if the request URI matches a specific pattern
+		 * @TODO Implement this method
 		 * @param string $pattern The pattern to match against (supports wildcards like '*')
 		 * @return bool
 		 */
