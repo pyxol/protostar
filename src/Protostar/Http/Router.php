@@ -120,8 +120,8 @@
 				// If the path has { and }, we need to handle dynamic segments
 				$route_path = $route['path'];
 				
-				$route_regex = preg_replace_callback('/\{([a-zA-Z0-9_]+)\}/', function($matches) {
-					return '([a-zA-Z0-9_]+)';
+				$route_regex = preg_replace_callback('/\{([a-zA-Z0-9_\-]+)\}/', function($matches) {
+					return '([a-zA-Z0-9_\-]+)';
 				}, $route_path);
 				
 				$route_regex = '#^' . $route_regex . '$#';
