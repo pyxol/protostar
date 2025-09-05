@@ -120,7 +120,7 @@
 				// If the path has { and }, we need to handle dynamic segments
 				$route_path = $route['path'];
 				
-				$route_regex = preg_replace_callback('/\{([a-zA-Z0-9_\-]+)\}/', function($matches) {
+				$route_regex = preg_replace_callback('/\{([a-zA-Z0-9_]+)\}/', function($matches) {
 					return '([a-zA-Z0-9_\-]+)';
 				}, $route_path);
 				
@@ -164,10 +164,10 @@
 		 * @return array
 		 */
 		protected function extractRouteParams(string $route, string $uri): array {
-			$pattern = preg_replace('#\{(\w+)\}#', '(?P<$1>[^/]+)', $route);
-			$pattern = '#^' . rtrim($pattern, '/') . '/?$#i';
+			$pattern = preg_replace('#\{([A-Za-z0-9\-_]+)\}#', '(?P<$1>[^/]+)', $route);
+			$pattern = '#^'. rtrim($pattern, '/') .'/?$#i';
 			
-			if(preg_match($pattern, $uri, $matches)) {
+			if(preg_match($pattern, trim($uri, '/'), $matches)) {
 				return array_filter(
 					$matches,
 					fn($k) => !is_int($k),
