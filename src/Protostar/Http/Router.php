@@ -107,6 +107,8 @@
 		 * @throws \Protostar\Http\Exception\RouteNotFoundException If no route matches the request
 		 */
 		public function match(Request $request): Response {
+			$request_uri = trim($request->getUri(), "/");
+			
 			foreach(self::$routes as $route) {
 				if($route['method'] !== $request->getMethod()) {
 					continue;
@@ -126,7 +128,8 @@
 				
 				$route_regex = '#^' . $route_regex . '$#';
 				
-				if(preg_match($route_regex, $request->getUri(), $matches)) {
+				if(preg_match($route_regex, $request_uri, $matches)) {
+					die("<pre>". print_r($matches, true) ."</pre>");
 					// If the route matches, we can call the handler
 					// Pass the dynamic segments as parameters to the handler
 					$this->digestRoutePathParams($route_path, $request);
@@ -168,6 +171,8 @@
 			$pattern = '#^'. rtrim($pattern, '/') .'/?$#i';
 			
 			if(preg_match($pattern, trim($uri, '/'), $matches)) {
+				die("<pre>". print_r($matches, true) ."</pre>");
+				
 				return array_filter(
 					$matches,
 					fn($k) => !is_int($k),
