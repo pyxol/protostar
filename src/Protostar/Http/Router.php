@@ -120,23 +120,28 @@
 				}
 				
 				// If the path has { and }, we need to handle dynamic segments
-				$route_path = $route['path'];
+				$route_path = trim($route['path'], "/");
 				
-				$route_regex = preg_replace_callback('/\{([a-zA-Z0-9_]+)\}/', function($matches) {
-					return '([a-zA-Z0-9_\-]+)';
+				$route_regex = preg_replace_callback('/\{([A-Za-z0-9_]+)\}/', function($matches) {
+					return '([A-Za-z0-9_\-]+)';
 				}, $route_path);
 				
-				$route_regex = '#^' . $route_regex . '$#';
+				$result = preg_match(
+					'#^'. $route_regex .'$#',
+					$request_uri,
+					$matches
+				);
 				
-				if(preg_match($route_regex, $request_uri, $matches)) {
-					die("<pre>". print_r($matches, true) ."</pre>");
-					// If the route matches, we can call the handler
-					// Pass the dynamic segments as parameters to the handler
-					$this->digestRoutePathParams($route_path, $request);
-					
-					// Call the handler with the request
-					return $this->callHandler($route['handler'], $request);
+				if((false === $result) || (0 === $result)) {
+					continue;
 				}
+				
+				// If the route matches, we can call the handler
+				// Pass the dynamic segments as parameters to the handler
+				$this->digestRoutePathParams($route_path, $request);
+				
+				// Call the handler with the request
+				return $this->callHandler($route['handler'], $request);
 			}
 			
 			throw new RouteNotFoundException("No route found for " . $request->getMethod() . " " . $request->getUri());
@@ -167,20 +172,18 @@
 		 * @return array
 		 */
 		protected function extractRouteParams(string $route, string $uri): array {
-			$pattern = preg_replace('#\{([A-Za-z0-9\-_]+)\}#', '(?P<$1>[^/]+)', $route);
-			$pattern = '#^'. rtrim($pattern, '/') .'/?$#i';
+			$pattern = trim($route, '/');
+			$pattern = preg_replace('#\{([A-Za-z0-9\-_]+)\}#', '(?P<$1>[A-Za-z0-9\-_]+)', $route);
 			
-			if(preg_match($pattern, trim($uri, '/'), $matches)) {
-				die("<pre>". print_r($matches, true) ."</pre>");
-				
-				return array_filter(
-					$matches,
-					fn($k) => !is_int($k),
-					ARRAY_FILTER_USE_KEY
-				);
+			if(!preg_match('#^'. $pattern .'$#i', trim($uri, '/'), $matches)) {
+				return [];
 			}
 			
-			return [];
+			return array_filter(
+				$matches,
+				fn($k) => !is_int($k),
+				ARRAY_FILTER_USE_KEY
+			);
 		}
 		
 		/**

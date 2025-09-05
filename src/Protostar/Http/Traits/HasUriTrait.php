@@ -37,6 +37,7 @@
 			
 			// Normalize the URI by removing query strings
 			$this->uri = preg_replace('/\?.*/', '', $this->uri);
+			$this->uri = trim($this->uri, "/");
 		}
 		
 		/**
