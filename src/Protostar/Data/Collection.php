@@ -1,10 +1,12 @@
 <?php
-	namespace Protostar\Collection;
+	namespace Protostar\Data;
 	
 	use ArrayAccess;
+	use IteratorAggregate;
+	use ArrayIterator;
 	use InvalidArgumentException;
 	
-	class Collection implements ArrayAccess {
+	class Collection implements ArrayAccess, IteratorAggregate {
 		/**
 		 * The items in the collection
 		 * @var array
@@ -15,7 +17,7 @@
 		 * Create a new collection from an array or another collection
 		 * @param array $items
 		 * @param callable|null $callback Optional callback to modify items as they are added
-		 * @return \Protostar\Collection\Collection
+		 * @return \Protostar\Data\Collection
 		 * @throws InvalidArgumentException
 		 */
 		public static function collect(
@@ -26,7 +28,7 @@
 				return $items;
 			}
 			
-			if(!is_array($items)) {
+			if(!\is_array($items)) {
 				throw new InvalidArgumentException('Items must be an array or an instance of Collection');
 			}
 			
@@ -48,7 +50,7 @@
 		 * @return bool
 		 */
 		public function offsetExists(mixed $offset): bool {
-			return isset($this->items[$offset]);
+			return \isset($this->items[$offset]);
 		}
 		
 		/**
@@ -67,7 +69,7 @@
 		 * @return void
 		 */
 		public function offsetSet(mixed $offset, mixed $value): void {
-			if(is_null($offset)) {
+			if(\is_null($offset)) {
 				$this->add($value);
 			} else {
 				$this->items[ $offset ] = $value;
@@ -80,10 +82,18 @@
 		 * @return void
 		 */
 		public function offsetUnset(mixed $offset): void {
-			if(isset($this->items[$offset])) {
-				unset($this->items[$offset]);
+			if(\isset($this->items[$offset])) {
+				\unset($this->items[$offset]);
 				$this->items = array_values($this->items); // re-index the array
 			}
+		}
+		
+		/**
+		 * Get an iterator for the collection
+		 * @return \ArrayIterator
+		 */
+		public function getIterator(): ArrayIterator {
+			return new ArrayIterator($this->items);
 		}
 		
 		/**
@@ -165,30 +175,45 @@
 		}
 		
 		/**
+		 * Execute a callback for each item in the collection
+		 * @param callable $callback
+		 * @return void
+		 */
+		public function each(callable $callback): void {
+			foreach($this->items as $item) {
+				$callback($item);
+			}
+		}
+		
+		/**
 		 * Filter the collection by a callback
 		 * @param callable $callback
-		 * @return \Protostar\Collection\Collection
+		 * @return \Protostar\Data\Collection
 		 */
 		public function filter(callable $callback): Collection {
 			$filtered = new Collection();
+			
 			foreach($this->items as $item) {
 				if($callback($item)) {
 					$filtered->add($item);
 				}
 			}
+			
 			return $filtered;
 		}
 		
 		/**
 		 * Map the collection to a new collection using a callback
 		 * @param callable $callback
-		 * @return \Protostar\Collection\Collection
+		 * @return \Protostar\Data\Collection
 		 */
 		public function map(callable $callback): Collection {
 			$mapped = new Collection();
+			
 			foreach($this->items as $item) {
 				$mapped->add($callback($item));
 			}
+			
 			return $mapped;
 		}
 		
@@ -196,8 +221,10 @@
 		 * Sort the collection using a callback
 		 * @param callable $callback
 		 */
-		public function sort(callable $callback): void {
+		public function sort(callable $callback): Collection {
 			usort($this->items, $callback);
+			
+			return $this;
 		}
 		
 		/**
@@ -222,7 +249,7 @@
 		 * @return string
 		 */
 		public function toJson(bool $pretty=false): string {
-			return json_encode($this->items, $pretty ? JSON_PRETTY_PRINT : 0);
+			return \json_encode($this->items, $pretty ? JSON_PRETTY_PRINT : 0);
 		}
 		
 		/**
@@ -230,7 +257,7 @@
 		 * @return string
 		 */
 		public function __toString(): string {
-			return implode(', ', array_map(function($item) {
+			return \implode(', ', \array_map(function($item) {
 				return (string)$item;
 			}, $this->items));
 		}
@@ -238,14 +265,14 @@
 		/**
 		 * Filter out the items that are in the provided array
 		 * @param array $values
-		 * @return \Protostar\Collection\Collection
+		 * @return \Protostar\Data\Collection
 		 */
 		public function except(mixed $values): Collection {
-			if(is_callable($values)) {
+			if(\is_callable($values)) {
 				return $this->filter($values);
 			} elseif($values instanceof Collection) {
 				$values = $values->toArray();
-			} elseif(!is_array($values) && !$values instanceof Collection) {
+			} elseif(!\is_array($values) && !$values instanceof Collection) {
 				$values = [$values];
 			}
 			
@@ -266,9 +293,15 @@
 		 * Limit the collection to a specified number of items
 		 * @param int $limit
 		 * @param int $offset
-		 * @return \Protostar\Collection\Collection
+		 * @return \Protostar\Data\Collection
 		 */
 		public function limit(int $limit, int $offset=0): Collection {
-			return Collection::collect(array_slice($this->items, $offset, $limit));
+			return Collection::collect(
+				\array_slice(
+					$this->items,
+					$offset,
+					$limit
+				)
+			);
 		}
 	}

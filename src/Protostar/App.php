@@ -116,6 +116,11 @@
 				return \Protostar\Cache\Cache::getHandler($matches[1]);
 			}
 			
+			// collection
+			if('collection' === $identifier) {
+				return new \Protostar\Data\Collection();
+			}
+			
 			throw new \InvalidArgumentException("Unknown instance identifier: ". $identifier);
 		}
 		
