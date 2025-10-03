@@ -41,9 +41,6 @@
 			Request $request = null,
 			Router $router = null
 		) {
-			// Include the necessary helper functions
-			require_once(__DIR__ .'/helpers.php');
-			
 			// Initialize the request and router objects
 			$this->request = $this->initializeRequest($request);
 			$this->router = $this->initializeRouter($router);

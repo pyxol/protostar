@@ -3,13 +3,34 @@
 	"description": "A strongly-typed container engine for PHP projects.",
 	"type": "library",
 	"license": "AGPL-3.0-or-later",
+	"homepage": "https://pyxol.com",
+	"support": {
+		"issues": "https://github.com/pyxol/magnetar/issues",
+		"source": "https://github.com/pyxol/magnetar"
+	},
+	"authors": [
+		{
+			"name": "Don Wilson",
+			"email": "don@pyxol.com",
+			"homepage": "https://pyxol.com/",
+			"role": "Lead Developer"
+		}
+	],
+	"require": {
+		"php": ">=8.2"
+	},
 	"autoload": {
+		"files": [
+			"src/Protostar/autoload.php"
+		],
 		"psr-4": {
 			"Protostar\\": "src/Protostar/"
 		}
 	},
-	"require": {
-		"php": ">=8.2"
+	"suggest": {
+		"ext-memcached": "Required for using memcache-specific caching functionality",
+		"ext-pdo": "Required for using database functionality",
+		"ext-redis": "Required for using redis-specific caching and queueing functionality"
 	},
 	"config": {
 		"allow-plugins": {

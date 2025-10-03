@@ -63,12 +63,21 @@
 			$this->connectionPass = $this->config['password'] ?? $this->connectionPass;
 			
 			if(isset($this->config['key_prefix'])) {
-				$this->keyPrefix = $this->config['key_prefix'] ?? '';
+				$this->setKeyPrefix($this->config['key_prefix'] ?? '');
 			}
 			
 			if(isset($this->config['queueable'])) {
 				$this->queueable = !empty($this->config['queueable']);
 			}
+		}
+		
+		/**
+		 * Set the key prefix for cache keys
+		 * @param string $prefix The key prefix to set
+		 * @return void
+		 */
+		protected function setKeyPrefix(string $prefix): void {
+			$this->keyPrefix = $prefix;
 		}
 		
 		/**
@@ -130,8 +139,8 @@
 		 * @return string
 		 */
 		public function getCacheKey(string $key): string {
-			// Generate a cache key with the prefix
-			return $this->keyPrefix . $key;
+			// Generate a cache key
+			return $key;
 		}
 		
 		/**

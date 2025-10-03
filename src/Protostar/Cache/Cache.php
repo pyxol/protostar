@@ -1,10 +1,11 @@
 <?php
 	namespace Protostar\Cache;
 	
-	use Exception;
+	use RuntimeException;
 	
 	use Protostar\Cache\CacheHandler;
 	use Protostar\Cache\RedisHandler;
+	use Protostar\Cache\MemcachedHandler;
 	
 	class Cache {
 		const DEFAULT_DRIVER = 'redis';
@@ -64,7 +65,7 @@
 		 * Create a new cache handler instance.
 		 * @param string $connection_name The name of the cache connection to create a handler for
 		 * @return CacheHandler
-		 * @throws Exception If the cache driver for the connection is not implemented
+		 * @throws RuntimeException If the cache driver for the connection is not implemented
 		 */
 		protected static function makeHandler(string $connection_name): CacheHandler {
 			switch(self::getHandlerDriver($connection_name)) {
@@ -74,8 +75,14 @@
 					);
 				break;
 				
+				case 'memcached':
+					return new MemcachedHandler(
+						self::getHandlerConfig($connection_name)
+					);
+				break;
+				
 				default:
-					throw new Exception("Cache driver for connection '$connection_name' is not implemented.");
+					throw new RuntimeException("Cache driver for connection '$connection_name' is not implemented.");
 			}
 		}
 	}

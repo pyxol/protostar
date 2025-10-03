@@ -16,6 +16,18 @@
 		 */
 		protected string $driverName = 'redis';
 		
+		
+		protected function setKeyPrefix(string $prefix): void {
+			if('' !== ($prefix = trim($prefix))) {
+				// Ensure the prefix ends with a colon for separation in redis keys
+				if(':' !== substr($prefix, -1)) {
+					$prefix .= ':';
+				}
+			}
+			
+			$this->keyPrefix = $prefix;
+		}
+		
 		/**
 		 * Generate the connection instance to the Redis data store
 		 * @return mixed
@@ -39,6 +51,10 @@
 				
 				if(!empty($this->connectionPass)) {
 					$instance->auth([$this->connectionPass]);
+				}
+				
+				if('' !== $this->keyPrefix) {
+					$instance->setOption(\Redis::OPT_PREFIX, $this->keyPrefix);
 				}
 				
 				return $instance;
