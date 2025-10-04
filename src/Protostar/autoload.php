@@ -33,8 +33,8 @@
 	
 	/**
 	 * Display a template file
-	 * @param string $name The name of the template file (without extension)
-	 * @param array $data An associative array of data to be passed to the template
+	 * @param string $__tpl_name The name of the template file (without extension)
+	 * @param array $__tpl_data An associative array of data to be passed to the template
 	 * @return void
 	 */
 	function display_tpl(string $__tpl_name, array $__tpl_data = []): void {
@@ -121,19 +121,19 @@
 	
 	/**
 	 * Parse a template file and return the rendered content
-	 * @param string $name The name of the template file (without extension)
-	 * @param array $data An associative array of data to be passed to the template
+	 * @param string $__tpl_name The name of the template file (without extension)
+	 * @param array $__tpl_data An associative array of data to be passed to the template
 	 * @return string
 	 */
-	function parse_template(string $name, array $data = []): string {
+	function parse_template(string $__tpl_name, array $__tpl_data = []): string {
 		// Extract the data to variables
-		extract($data, EXTR_SKIP);
+		extract($__tpl_data, EXTR_SKIP);
 		
 		// Start output buffering
 		ob_start();
 		
 		// Include the template file
-		include '/app/templates/'. $name .'.php';
+		include '/app/templates/'. $__tpl_name .'.php';
 		
 		// Get the contents of the buffer
 		return ob_get_clean();
@@ -183,13 +183,13 @@
 	
 	/**
 	 * Send a template response
-	 * @param string $name The name of the template file (without extension)
-	 * @param array $data An associative array of data to be passed to the template
+	 * @param string $__tpl_name The name of the template file (without extension)
+	 * @param array $__tpl_data An associative array of data to be passed to the template
 	 * @return \Protostar\Http\Response
 	 */
-	function template(string $name, array $data = []): \Protostar\Http\Response {
+	function template(string $__tpl_name, array $__tpl_data = []): \Protostar\Http\Response {
 		$response = new \Protostar\Http\Response();
-		$response->setBody( parse_template($name, $data) );
+		$response->setBody( parse_template($__tpl_name, $__tpl_data) );
 		
 		return $response;
 	}
