@@ -37,12 +37,12 @@
 	 * @param array $data An associative array of data to be passed to the template
 	 * @return void
 	 */
-	function display_tpl(string $name, array $data = []): void {
+	function display_tpl(string $__tpl_name, array $__tpl_data = []): void {
 		// Extract the data to variables
-		extract($data, EXTR_SKIP);
+		extract($__tpl_data, EXTR_SKIP);
 		
 		// Include the template file
-		include '/app/templates/'. $name .'.php';
+		include '/app/templates/'. $__tpl_name .'.php';
 	}
 	
 	/**
