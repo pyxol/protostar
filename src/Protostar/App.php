@@ -57,6 +57,11 @@
 		 * @return mixed
 		 */
 		public static function instance(string $identifier='app'): mixed {
+			if('collection' === $identifier) {
+				// If the identifier is 'collection', always return a new instance
+				return new \Protostar\Data\Collection();
+			}
+			
 			// Return the instance from the static instances array
 			return self::$instances[ $identifier ] ??= self::createInstance($identifier);
 		}
