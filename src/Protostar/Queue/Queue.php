@@ -156,12 +156,16 @@
 		 */
 		public static function add(
 			string|null $queue_name=null,
-			mixed $data,
+			mixed $data=null,
 			int $delay=0,
 			bool $priority=false
 		): void {
 			if(is_null($queue_name)) {
 				$queue_name = QUEUE_NAME ?: throw new \Exception('QUEUE_NAME not set');
+			}
+			
+			if(null === $data) {
+				throw new \Exception('No data provided to add to queue');
 			}
 			
 			if($delay > 0) {
