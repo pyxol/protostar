@@ -113,7 +113,7 @@
 		 * @param string|null $queue_name The name of the queue
 		 * @return string
 		 */
-		public static function getQueueName(string|null $queue_name): string {
+		public static function getQueueName(string|null $queue_name=null): string {
 			if(is_null($queue_name)) {
 				$queue_name = QUEUE_NAME ?: throw new \Exception('QUEUE_NAME not set');
 			}

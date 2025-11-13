@@ -118,6 +118,19 @@
 				return \Protostar\Cache\Cache::getHandler($matches[1]);
 			}
 			
+			// queue
+			if('queue' === $identifier) {
+				return \Protostar\Queue\Queue::getDefaultHandler();
+			} elseif(preg_match("#^queue\.([A-Za-z0-9_]+)$#", $identifier, $matches)) {
+				// If the identifier matches the queue handler pattern, create the handler instance
+				return \Protostar\Queue\Queue::getHandler($matches[1]);
+			}
+			
+			// queue worker
+			if('queue.worker' === $identifier) {
+				return new \Protostar\Queue\Worker();
+			}
+			
 			// collection
 			if('collection' === $identifier) {
 				return new \Protostar\Data\Collection();
