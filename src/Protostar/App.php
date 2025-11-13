@@ -120,10 +120,7 @@
 			
 			// queue
 			if('queue' === $identifier) {
-				return \Protostar\Queue\Queue::getDefaultHandler();
-			} elseif(preg_match("#^queue\.([A-Za-z0-9_]+)$#", $identifier, $matches)) {
-				// If the identifier matches the queue handler pattern, create the handler instance
-				return \Protostar\Queue\Queue::getHandler($matches[1]);
+				return new \Protostar\Queue\Queue();
 			}
 			
 			// queue worker
