@@ -2,6 +2,7 @@
 	namespace Protostar\Queue;
 	
 	use Redis;
+	use Exception;
 	
 	use Protostar\Queue\Job;
 	use Protostar\System\Log;
@@ -37,38 +38,41 @@
 		protected static function createConnection(): Redis {
 			try {
 				if(!extension_loaded('redis')) {
-					throw new \Exception('Redis extension not loaded');
+					throw new Exception('Redis extension not loaded');
 				}
 				
-				if(!defined("REDIS_HOST") || !REDIS_HOST) {
-					throw new \Exception('REDIS_HOST not set');
+				
+				$config = \app('config')('queue.connections.default', []);
+				
+				if(empty($config['host'])) {
+					throw new Exception('Queue connection host not set');
 				}
 				
-				if(!defined("REDIS_PORT") || !REDIS_PORT) {
-					throw new \Exception('REDIS_PORT not set');
+				if(empty($config['port'])) {
+					throw new Exception('Queue connection port not set');
 				}
 				
 				// connect
 				$connection = new Redis();
 				$connection->connect(
-					REDIS_HOST,
-					REDIS_PORT,
-					2.5
+					$config['host'],
+					$config['port'],
+					(isset($config['timeout']) ? (float)$config['timeout'] : 2.5)
 				);
 				
 				// check if the connection was successful
 				if(!$connection->isConnected()) {
-					throw new \Exception('Failed to connect to Redis server');
+					throw new Exception('Failed to connect to Redis server');
 				}
 				
 				// if a password is defined, authenticate
-				if(defined("REDIS_PASSWORD") && REDIS_PASSWORD) {
-					$connection->auth([REDIS_PASSWORD]);
+				if(isset($config['password']) && ('' !== $config['password'])) {
+					$connection->auth([ $config['password'] ]);
 				}
 				
 				return $connection;
 			} catch (\Exception $e) {
-				throw new \Exception('Redis connection failed: '. $e->getMessage());
+				throw new Exception('Redis connection failed: '. $e->getMessage());
 			}
 		}
 		
@@ -82,13 +86,13 @@
 				$data = Job::prepareForQueue($data);
 			}
 			
-			return json_encode($data) ?: throw new \Exception('Failed to encode data to JSON');
+			return json_encode($data) ?: throw new Exception('Failed to encode data to JSON');
 		}
 		
 		/**
 		 * Prepare data from the queue for output
-		 * @param string $queue_name
-		 * @param string $data
+		 * @param string $queue_name The name of the queue
+		 * @param string $data The data from the queue
 		 * @return mixed
 		 */
 		public static function prepareOutputData(string $queue_name, string $data): mixed {
@@ -96,7 +100,7 @@
 				$job = new Job($queue_name, $data);
 				
 				if(!($job instanceof Job)) {
-					throw new \Exception('Failed to decode data from JSON');
+					throw new Exception('Failed to decode data from JSON');
 				}
 				
 				return $job;
@@ -105,7 +109,22 @@
 				print "[Queue Warning]: ". $e->getMessage() ."\n";
 			}
 			
-			return json_decode($data, true) ?: throw new \Exception('Failed to decode JSON data');
+			return json_decode($data, true) ?: throw new Exception('Failed to decode JSON data');
+		}
+		
+		/**
+		 * Get the default queue name from config if available. If not, throws an exception
+		 * @return string
+		 * @throws \Exception if the default queue name is not set in configuration
+		 */
+		public static function defaultQueueName(): string {
+			$name = \app('config')('queue.connections.default.queue_name', '');
+			
+			if('' === $name) {
+				throw new Exception('Default queue name not set in configuration');
+			}
+			
+			return $name;
 		}
 		
 		/**
@@ -114,8 +133,8 @@
 		 * @return string
 		 */
 		public static function getQueueName(string|null $queue_name=null): string {
-			if(is_null($queue_name)) {
-				$queue_name = QUEUE_NAME ?: throw new \Exception('QUEUE_NAME not set');
+			if(is_null($queue_name) || ('' === $queue_name)) {
+				$queue_name = static::defaultQueueName();
 			}
 			
 			return $queue_name;
@@ -127,11 +146,7 @@
 		 * @return string
 		 */
 		public static function getDelayedQueueName(string|null $queue_name): string {
-			if(is_null($queue_name)) {
-				$queue_name = QUEUE_NAME ?: throw new \Exception('QUEUE_NAME not set');
-			}
-			
-			return $queue_name .':delayed';
+			return ($queue_name ?? static::defaultQueueName()) .':delayed';
 		}
 		
 		/**
@@ -140,11 +155,7 @@
 		 * @return string
 		 */
 		public static function getQueueVersionName(string|null $queue_name): string {
-			if(is_null($queue_name)) {
-				$queue_name = QUEUE_NAME ?: throw new \Exception('QUEUE_NAME not set');
-			}
-			
-			return $queue_name .':version';
+			return ($queue_name ?? static::defaultQueueName()) .':version';
 		}
 		
 		/**
@@ -161,11 +172,11 @@
 			bool $priority=false
 		): void {
 			if(is_null($queue_name)) {
-				$queue_name = QUEUE_NAME ?: throw new \Exception('QUEUE_NAME not set');
+				$queue_name = static::defaultQueueName();
 			}
 			
 			if(null === $data) {
-				throw new \Exception('No data provided to add to queue');
+				throw new Exception('No data provided to add to queue');
 			}
 			
 			if($delay > 0) {
@@ -275,8 +286,8 @@
 		
 		/**
 		 * Set the worker version in the cache
-		 * @param int|null|null $version The version of the worker to set, defaults to the current timestamp if not provided
-		 * @param string|null|null $queue_name The name of the queue to set the version for, defaults to QUEUE_NAME if not provided
+		 * @param int|null $version The version of the worker to set, defaults to the current timestamp if not provided
+		 * @param string|null $queue_name The name of the queue to set the version for. If not set, uses the default queue name
 		 * @return void
 		 */
 		protected static function setWorkerVersion(string|null $queue_name=null, int|null $version=null): void {
@@ -290,11 +301,13 @@
 		
 		/**
 		 * Restart the workers by updating the worker version
-		 * @param string|null|null $queue_name
+		 * @param string|null $queue_name
 		 * @return void
 		 */
 		public static function restartWorkers(string|null $queue_name=null): void {
-			Log::info("Restarting workers for queue: ". ($queue_name ?? QUEUE_NAME) ." with version: ". time());
+			$queue_name ??= static::defaultQueueName();
+			
+			Log::info("Restarting workers for queue: ". $queue_name ." with version: ". time());
 			
 			// trigger workers to restart by updating the worker version
 			static::setWorkerVersion($queue_name, time());
@@ -340,7 +353,7 @@
 		
 		/**
 		 * Empty all items from the queue (and it's delayed queue)
-		 * @param string|null|null $queue_name The name of the queue
+		 * @param string|null $queue_name The name of the queue
 		 * @return void
 		 * @throws \Exception if a queue name is not set and cannot be derived
 		 */
