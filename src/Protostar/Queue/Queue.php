@@ -42,7 +42,7 @@
 				}
 				
 				
-				$config = \app('config')('queue.connections.default', []);
+				$config = \config('queue.connections.default', []);
 				
 				if(empty($config['host'])) {
 					throw new Exception('Queue connection host not set');
@@ -118,7 +118,7 @@
 		 * @throws \Exception if the default queue name is not set in configuration
 		 */
 		public static function defaultQueueName(): string {
-			$name = \app('config')('queue.connections.default.queue_name', '');
+			$name = \config('queue.connections.default.queue_name', '');
 			
 			if('' === $name) {
 				throw new Exception('Default queue name not set in configuration');
